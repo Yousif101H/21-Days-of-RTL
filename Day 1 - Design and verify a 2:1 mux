@@ -1,0 +1,40 @@
+// Design module //
+module day1 (
+  input   wire [7:0]    a_i,     // 8-bit input signal a
+  input   wire [7:0]    b_i,    // 8-bit input signal b
+  input   wire          sel_i, // 1-bit input select 
+  output  wire [7:0]    y_o   // // 8-bit output signal y
+);
+
+// 2:1 mux: if sel_i is asserted, the output y_o takes the value from a_i input signal, otherwire from b_i
+assign y_o = (sel_i) ? a_i:b_i;
+
+endmodule
+
+// Test bench module //
+module day1_tb ();
+
+  
+  logic 		[7:0] a_i_t;
+  logic 		[7:0] b_i_t;
+  logic 					sel_i_t;
+  logic 		[7:0] y_o_t;
+  
+  day1 D1(
+    
+    .a_i(a_i_t),
+    .b_i(b_i_t),
+    .sel_i(sel_i_t),
+    .y_o(y_o_t)
+  );
+  
+  initial begin
+    for (int i = 0; i < 8; i++) begin
+      a_i_t    = $urandom_range (0, 8'hff);
+      b_i_t    = $urandom_range (0, 8'hff);
+      sel_i_t  = $random%2;
+      #5;
+    end
+    $finish();
+  end
+endmodule
