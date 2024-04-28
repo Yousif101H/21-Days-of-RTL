@@ -1,0 +1,88 @@
+module day2 (
+  input     logic      clk,
+  input     logic      reset,
+
+  input     logic      d_i,
+
+  output    logic      q_norst_o,   // output from non-resettable flop
+  output    logic      q_syncrst_o, // output from flop using synchronous reset
+  output    logic      q_asyncrst_o // output from flop using asynchronous reset
+);
+
+  
+  //non-resettable flop
+  always_ff @ (posedge clk)
+    q_norst_o <= d_i;
+  
+  //synchronous reset
+  always_ff @(posedge clk)
+    if(reset)
+      q_syncrst_o <= 1'b0;
+  	else
+       q_syncrst_o <= d_i;
+  //asynchrnoous reset
+  /* Note: There is an error that you may encounter "Signal flopped as both synchronous and async: 'reset' Line"
+     This is because in this module we use synchronous and asynchronous DFF design and that is not a good practice,
+    Either using sync or async in one design */
+  always_ff @(posedge clk or posedge reset)  
+    if(reset)
+      q_asyncrst_o <= 1'b0;
+  	else
+       q_asyncrst_o <= d_i;
+
+endmodule
+
+
+// Test_bench module
+
+module day2_tb ();
+
+  logic			clk_t;
+  logic 		rst_t;
+  
+  logic 		d_i_t;
+  
+  logic   	q_norst_o_t;
+  logic			q_syncrst_o_t;
+  logic 		q_asyncrst_o;
+  
+  day2  D2(
+    
+    .clk(clk_t),
+    .reset(rst_t),
+    .d_i(d_i_t),
+    .q_norst_o(q_norst_o_t),
+    .q_syncrst_o(q_syncrst_o),
+    .q_asyncrst_o(q_asyncrst_o)
+  );
+  
+  //clk generation
+  always begin
+    clk_t = 1'b1;
+    #5;
+    clk_t = ~clk_t;
+    #5;
+  end
+  
+  //stimuli generation 
+  initial begin
+    rst_t = 1'b1;
+    d_i_t = 1'b0;
+    @(posedge clk_t);
+    @(posedge clk_t);
+    rst_t = 1'b0;
+    @(posedge clk_t);
+    d_i_t = 1'b1;
+    @(posedge clk_t);
+    @(negedge clk_t);
+    rst_t = 1'b1;
+    @(posedge clk_t);
+    @(posedge clk_t);
+    @(posedge clk_t);
+    d_i_t = 1'b0;
+    rst_t = 1'b0;
+    @(posedge clk_t);
+    @(posedge clk_t);
+    $finish();
+  end
+endmodule
