@@ -1,0 +1,69 @@
+//  rising and falling edge detector module
+module day3 (
+  input     wire    clk,
+  input     wire    reset,
+
+  input     wire    a_i,
+
+  output    wire    rising_edge_o,
+  output    wire    falling_edge_o
+);
+
+  logic q_dd_del;
+  
+  //DFF to add delay to the a_i signal
+  always_ff @ (posedge clk or posedge reset)
+    if (reset)
+      q_dd_del <= 1'b0;
+  	else
+      q_dd_del <= a_i;
+  
+  assign rising_edge_o  = ~ q_dd_del & a_i;
+  assign falling_edge_o = ~ a_i & q_dd_del;
+
+  endmodule
+
+//testbench
+module day3_tb ();
+	
+  logic			clk_t;
+  logic 		rst_t;
+  
+  logic			a_i_t;
+
+  logic     rising_edge_o_t;
+  logic     falling_edge_o_t;
+  
+  day3 D3(
+    
+    .a_i(a_i_t),
+    .clk(clk_t),
+    .reset(rst_t),
+    .rising_edge_o(rising_edge_o_t),
+    .falling_edge_o(falling_edge_o_t)
+  );
+  
+  //Clk generation
+  always begin
+    clk_t	=	1'b0;
+  	#5;
+  	clk_t = ~clk_t;
+  	#5;
+  end
+  
+  //stimulus
+  initial begin
+    rst_t <= 1'b1;
+    a_i_t <= 1'b0;
+    @(posedge clk_t);
+    rst_t <= 1'b0;
+    @(posedge clk_t);
+    for (int i = 0; i < 32; i++) begin
+      
+      a_i_t <= $random%2;
+      @(posedge clk_t);
+      end
+    $finish();
+  end
+
+endmodule
