@@ -1,0 +1,47 @@
+module odd_counter (
+  input     wire        clk,
+  input     wire        reset,
+  output    logic[7:0]  cnt_o
+);
+  
+  // Counter operation
+  always_ff @ (posedge clk or posedge reset)
+    if(reset)
+      cnt_o <= 8'h1;
+    else
+      cnt_o <= cnt_o + 8'h2;
+  
+endmodule // End of module
+
+//testbench
+
+module day5_tb ();
+  
+  reg 					rst_tb;
+  reg 					clk_tb;
+  
+  logic [7:0] 	out_tb;
+  
+  day5 D5(
+    
+    .clk  (clk_tb),
+    .reset(rst_tb),
+    .cnt_o(out_tb)
+  );
+  
+  always begin
+    
+    clk_tb = 1'b0;
+    #5;
+    clk_tb = ~clk_tb;
+    #5;
+  end
+  
+  initial begin
+    rst_tb <= 1'b1;
+    #10;
+    rst_tb <= 1'b0;
+    #200;
+    $finish();
+  end
+endmodule
